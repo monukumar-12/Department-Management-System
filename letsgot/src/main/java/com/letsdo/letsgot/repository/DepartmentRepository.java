@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DepartmentRepository extends JpaRepository <DepartmentEntities,Long> {
+    DepartmentEntities deleteDepartmentEntitiesByDepartmentId(Long departmentId);
 }

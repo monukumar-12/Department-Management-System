@@ -4,6 +4,7 @@ package com.letsdo.letsgot.controllers;
 import com.letsdo.letsgot.dto.DepartmentDto;
 import com.letsdo.letsgot.entities.DepartmentEntities;
 import com.letsdo.letsgot.repository.DepartmentRepository;
+import com.letsdo.letsgot.services.DepartmentServices;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,37 +18,56 @@ import java.util.Optional;
 public class DepartmentController {
 
 
-private final DepartmentRepository departmentRepository;
+private final DepartmentServices departmentServices;
 
-    public DepartmentController(DepartmentRepository departmentRepository) {
-        this.departmentRepository = departmentRepository;
+    public DepartmentController(DepartmentServices departmentServices) {
+        this.departmentServices = departmentServices;
     }
 
     @GetMapping(path= "/{departmentId}")
-    public DepartmentEntities getAllDepartment(@PathVariable (name = "departmentId") Long id){
-        return departmentRepository.findById(id).orElse(null);
+    public DepartmentDto getDepartmentById(@PathVariable (name = "departmentId") Long id){
+        return departmentServices.getDepartmentById(id);
+
+
     }
 
     @GetMapping
-    public List<DepartmentEntities> getAllDepartment(@RequestParam(required = false) Long id,
+    public List<DepartmentDto> getAllDepartment(@RequestParam(required = false) Long id,
                                                      @RequestParam(required = false)String title)
 
     {
-        return departmentRepository.findAll();
+        return departmentServices.getAllDepartment();
 
     }
 @PostMapping
-    public List< DepartmentEntities> createNewDepartment(@RequestBody List<DepartmentEntities >inputDepartment){
+    public List<DepartmentDto> createNewDepartment(@RequestBody List<DepartmentDto >inputDepartment){
 
-        return  departmentRepository.saveAll(inputDepartment);
+        return  departmentServices.createNewDepartment(inputDepartment);
+
+}
+
+@PutMapping("/{id}")
+public DepartmentDto updateDepartmentById(   @PathVariable Long id,
+                                              @RequestBody DepartmentDto  departmentDto){
+
+    return departmentServices.updateDepartmentById(id,departmentDto);
 
 }
 
-@PutMapping
-public DepartmentDto updateDepartmentById(@RequestBody DepartmentDto  departmentId){
+    @PatchMapping("/{id}")
+    public DepartmentDto updateDepartmentPartiallyById(   @PathVariable Long id,
+                                                 @RequestBody DepartmentDto  departmentDto){
 
-    return new DepartmentDto();
+        return departmentServices.updateDepartmentPartiallyById(id,departmentDto);
 
-}
+    }
+
+    @DeleteMapping("/{id}")
+    public DepartmentDto deleteDepartmentById(   @PathVariable Long id){
+
+
+        return departmentServices.deleteDepartmentById(id);
+
+    }
 
 }
