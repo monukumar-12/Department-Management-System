@@ -5,6 +5,7 @@ import com.letsdo.letsgot.dto.DepartmentDto;
 import com.letsdo.letsgot.entities.DepartmentEntities;
 import com.letsdo.letsgot.repository.DepartmentRepository;
 import com.letsdo.letsgot.services.DepartmentServices;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,48 +26,57 @@ private final DepartmentServices departmentServices;
     }
 
     @GetMapping(path= "/{departmentId}")
-    public DepartmentDto getDepartmentById(@PathVariable (name = "departmentId") Long id){
-        return departmentServices.getDepartmentById(id);
+    public ResponseEntity <DepartmentDto> getDepartmentById(@PathVariable (name = "departmentId") Long id){
+    Optional<  DepartmentDto> departmentDto =   departmentServices.getDepartmentById(id);
 
-
+     return departmentDto.map(departmentDto1 -> ResponseEntity.ok(departmentDto1))
+             .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<DepartmentDto> getAllDepartment(@RequestParam(required = false) Long id,
+    public ResponseEntity<List<DepartmentDto>> getAllDepartment(@RequestParam(required = false) Long id,
                                                      @RequestParam(required = false)String title)
 
     {
-        return departmentServices.getAllDepartment();
-
+        return ResponseEntity.ok(departmentServices.getAllDepartment());
     }
 @PostMapping
-    public List<DepartmentDto> createNewDepartment(@RequestBody List<DepartmentDto >inputDepartment){
+    public ResponseEntity<List<DepartmentDto>> createNewDepartment(@RequestBody List<DepartmentDto >inputDepartment){
 
-        return  departmentServices.createNewDepartment(inputDepartment);
+      List<DepartmentDto> saveAllDepartment=  departmentServices.createNewDepartment(inputDepartment);
 
+       return new ResponseEntity<>(saveAllDepartment, HttpStatus.CREATED);
 }
 
 @PutMapping("/{id}")
-public DepartmentDto updateDepartmentById(   @PathVariable Long id,
+public ResponseEntity<DepartmentDto >updateDepartmentById(   @PathVariable Long id,
                                               @RequestBody DepartmentDto  departmentDto){
 
-    return departmentServices.updateDepartmentById(id,departmentDto);
+    return ResponseEntity.ok(departmentServices.updateDepartmentById(id,departmentDto));
 
 }
 
     @PatchMapping("/{id}")
-    public DepartmentDto updateDepartmentPartiallyById(   @PathVariable Long id,
+    public ResponseEntity< DepartmentDto> updateDepartmentPartiallyById(   @PathVariable Long id,
                                                  @RequestBody DepartmentDto  departmentDto){
 
-        return departmentServices.updateDepartmentPartiallyById(id,departmentDto);
+        DepartmentDto departmentDto1 = departmentServices.updateDepartmentPartiallyById(id,departmentDto);
+
+        if(departmentDto1==null) return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(departmentDto1);
 
     }
 
     @DeleteMapping("/{id}")
-    public DepartmentDto deleteDepartmentById(   @PathVariable Long id){
+    public ResponseEntity<Boolean> deleteDepartmentById(   @PathVariable Long id){
+    Boolean gotDeleted = departmentServices.deleteDepartmentById(id);
+     if(gotDeleted) return ResponseEntity.ok(true);
+
+     return ResponseEntity.notFound().build();
 
 
-        return departmentServices.deleteDepartmentById(id);
+
 
     }
 

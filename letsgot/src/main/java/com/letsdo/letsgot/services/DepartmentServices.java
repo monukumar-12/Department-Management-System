@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DepartmentServices {
@@ -20,10 +21,9 @@ public class DepartmentServices {
         this.modelMapper = modelMapper;
     }
 
-    public DepartmentDto getDepartmentById(Long id) {
-        DepartmentEntities departmentEntities = departmentRepository.findById(id).orElse(null);
-        return modelMapper.map(departmentEntities,DepartmentDto.class);
-
+    public Optional<DepartmentDto> getDepartmentById(Long id) {
+        Optional<DepartmentEntities >departmentEntities = departmentRepository.findById(id);
+        return departmentEntities.map(departmentEntities1 -> modelMapper.map(departmentEntities1,DepartmentDto.class));
     }
 
     public List<DepartmentDto> getAllDepartment() {
@@ -54,48 +54,40 @@ public class DepartmentServices {
         return modelMapper.map(departmentEntities,DepartmentDto.class);
     }
 
-    public DepartmentDto updateDepartmentPartiallyById(Long id, DepartmentDto departmentDto) {
+public DepartmentDto updateDepartmentPartiallyById(Long id, DepartmentDto departmentDto) {
 
-        DepartmentEntities departmentEntities = departmentRepository.findById(id).orElseThrow();
-        if (departmentDto.getTitle() != null) {
-            departmentEntities.setTitle(departmentDto.getTitle());
-        }
+    Optional<DepartmentEntities> optionalDepartment =
+            departmentRepository.findById(id);
 
-        if (departmentDto.getIsActive() != null) {
-            departmentEntities.setIsActive(departmentDto.getIsActive());
-        }
-
-        DepartmentEntities updatedDepartment= departmentRepository.save(departmentEntities);
-
-     return    modelMapper.map(updatedDepartment,DepartmentDto.class);
-
-
+    if (optionalDepartment.isEmpty()) {
+        return null; // controller will return 404
     }
 
-    public DepartmentDto deleteDepartmentById(Long id) {
-        DepartmentEntities departmentEntities = departmentRepository.findById(id).orElseThrow();
-        departmentRepository.delete(departmentEntities);
-    return modelMapper.map(departmentEntities,DepartmentDto.class);
+    DepartmentEntities departmentEntities = optionalDepartment.get();
 
+    if (departmentDto.getTitle() != null) {
+        departmentEntities.setTitle(departmentDto.getTitle());
+    }
+
+    if (departmentDto.getIsActive() != null) {
+        departmentEntities.setIsActive(departmentDto.getIsActive());
+    }
+
+    DepartmentEntities updatedDepartment =
+            departmentRepository.save(departmentEntities);
+
+    return modelMapper.map(updatedDepartment, DepartmentDto.class);
+}
+
+
+    public Boolean deleteDepartmentById(Long id) {
+           boolean exists = departmentRepository.existsById(id);
+           if(!exists) return false;
+           departmentRepository.deleteById(id);
+           return true;
     }
 
 
-//public List<DepartmentDto> createNewDepartment(List<DepartmentDto> inputDepartment) {
-//
-//    // DTO → Entity
-//    List<DepartmentEntities> entities = inputDepartment.stream()
-//            .map(dto -> modelMapper.map(dto, DepartmentEntities.class))
-//            .toList();
-//
-//    // saveAll expects List<Entity>
-//    List<DepartmentEntities> savedEntities =
-//            departmentRepository.saveAll(entities);
-//
-//    // Entity → DTO
-//    return savedEntities.stream()
-//            .map(entity -> modelMapper.map(entity, DepartmentDto.class))
-//            .toList();
-//}
 
 
 
