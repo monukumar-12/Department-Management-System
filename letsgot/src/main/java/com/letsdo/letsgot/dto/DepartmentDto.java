@@ -1,5 +1,7 @@
 package com.letsdo.letsgot.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +18,10 @@ import java.time.LocalDateTime;
 public class DepartmentDto {
 
    private Long departmentId;
+   @NotNull(message = "department should be not null")
     private  String title;
     private  Boolean isActive;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
 }

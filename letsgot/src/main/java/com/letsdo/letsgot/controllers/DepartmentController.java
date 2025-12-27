@@ -5,12 +5,14 @@ import com.letsdo.letsgot.dto.DepartmentDto;
 import com.letsdo.letsgot.entities.DepartmentEntities;
 import com.letsdo.letsgot.repository.DepartmentRepository;
 import com.letsdo.letsgot.services.DepartmentServices;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -30,7 +32,7 @@ private final DepartmentServices departmentServices;
     Optional<  DepartmentDto> departmentDto =   departmentServices.getDepartmentById(id);
 
      return departmentDto.map(departmentDto1 -> ResponseEntity.ok(departmentDto1))
-             .orElse(ResponseEntity.notFound().build());
+             .orElseThrow(()-> new NoSuchElementException("employee not found"));
     }
 
     @GetMapping
@@ -40,8 +42,11 @@ private final DepartmentServices departmentServices;
     {
         return ResponseEntity.ok(departmentServices.getAllDepartment());
     }
-@PostMapping
-    public ResponseEntity<List<DepartmentDto>> createNewDepartment(@RequestBody List<DepartmentDto >inputDepartment){
+
+
+
+    @PostMapping
+    public ResponseEntity<List<DepartmentDto>> createNewDepartment(@RequestBody @Valid List<DepartmentDto >inputDepartment){
 
       List<DepartmentDto> saveAllDepartment=  departmentServices.createNewDepartment(inputDepartment);
 
